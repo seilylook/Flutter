@@ -1,5 +1,11 @@
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 import 'package:random_dice/screen/home_screen.dart';
+import 'package:random_dice/screen/root_screen.dart';
+import 'package:random_dice/screen/settings_scree.dart';
+import 'dart:math';
+import 'package:shake/shake.dart';
 
 class RootScreen extends StatefulWidget {
   const RootScreen({Key? key}) : super(key: key);
@@ -10,6 +16,9 @@ class RootScreen extends StatefulWidget {
 
 class _RootScreenState extends State<RootScreen> with TickerProviderStateMixin {
   TabController? controller;
+  double threshold = 2.7;
+  int shakeNumber = 1;
+  ShakeDetector? shakeDetector;
 
   @override
   void initState() {
@@ -17,6 +26,12 @@ class _RootScreenState extends State<RootScreen> with TickerProviderStateMixin {
 
     controller = TabController(length: 2, vsync: this);
     controller!.addListener(tabListener);
+
+    shakeDetector = ShakeDetector.autoStart(
+        shakeSlopTimeMS: 100,
+        shakeThresholdGravity: threshold,
+        onPhoneShake: onPhoneShake,
+    );
   }
 
   @override
@@ -32,18 +47,23 @@ class _RootScreenState extends State<RootScreen> with TickerProviderStateMixin {
 
   List<Widget> renderChildren() {
     return [
-      HomeScreen(number: 3),
-      Container(
-        child: Center(
-          child: Text(
-            'Tab 2',
-            style: TextStyle(
-              color: Colors.white,
-            ),
-          ),
-        ),
-      )
+      HomeScreen(number: shakeNumber),
+      SettingsScreen(threshold: threshold, onThresholdChange: onThresholdChange)
     ];
+  }
+
+  void onThresholdChange(double value) {
+    setState(() {
+      threshold = value;
+    });
+  }
+
+  void onPhoneShake() {
+    final randomNumber = new Random();
+
+    setState(() {
+      shakeNumber = randomNumber.nextInt(5) + 1;
+    });
   }
 
   tabListener() {
@@ -53,6 +73,7 @@ class _RootScreenState extends State<RootScreen> with TickerProviderStateMixin {
   @override
   dispose() {
     controller!.removeListener(tabListener);
+    shakeDetector!.stopListening();
     super.dispose();
   }
 
