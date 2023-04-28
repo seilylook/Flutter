@@ -28,9 +28,9 @@ class _RootScreenState extends State<RootScreen> with TickerProviderStateMixin {
     controller!.addListener(tabListener);
 
     shakeDetector = ShakeDetector.autoStart(
-        shakeSlopTimeMS: 100,
-        shakeThresholdGravity: threshold,
-        onPhoneShake: onPhoneShake,
+      shakeSlopTimeMS: 100,
+      shakeThresholdGravity: threshold,
+      onPhoneShake: onPhoneShake,
     );
   }
 
